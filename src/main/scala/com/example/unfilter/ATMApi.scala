@@ -32,11 +32,11 @@ object ATMApi extends Plan with ServerErrorResponse {
 
     case req@POST(Path(Seg("ts" :: id :: "occupied" :: Nil))) => {
       register ! Occupied(id)
-      req.respond(Ok ~> ResponseString("updated"))
+      req.respond(Ok)
     }
     case req@POST(Path(Seg("ts" :: id :: "vacant" :: Nil))) => {
       register ! Vacant(id)
-      req.respond(Ok ~> ResponseString("updated"))
+      req.respond(Ok)
     }
 
 
@@ -56,20 +56,16 @@ object ATMApi extends Plan with ServerErrorResponse {
   }
 
 
-  def errorResponse(e: Throwable) = InternalServerError ~> ResponseString(e.getMessage)
+  def errorResponse(e: Throwable) = InternalServerError ~> ResponseString(error(e))
 
   def toJson(t: Toilet): String =
-    pretty(
-      ("id" -> t.id) ~ ("occupied" -> t.occupied)
-    )
+    pretty(("id" -> t.id) ~ ("occupied" -> t.occupied))
 
-
-  def toJson(ts: List[Toilet]): String = pretty(ts.map(
-    t => {
-      ("id" -> t.id) ~ ("occupied" -> t.occupied)
-    }
+  def toJson(ts: List[Toilet]): String = pretty( ts.map (
+    t => { ("id" -> t.id) ~ ("occupied" -> t.occupied)}
   ))
 
+  def error(t: Throwable): String = pretty ("error" -> t.getMessage)
 
 
 
