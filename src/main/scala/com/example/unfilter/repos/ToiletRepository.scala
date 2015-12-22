@@ -1,8 +1,8 @@
 package com.example.unfilter.repos
 
 import akka.actor.Actor
+import com.example.unfilter.Message.{Enquiry, Occupied, Vacant}
 import com.example.unfilter.models.Toilet
-import com.example.unfilter.repos.ToiletRepository.{Enquiry, Occupied, Vacant}
 
 class ToiletRepository extends Actor {
 
@@ -27,16 +27,3 @@ class ToiletRepository extends Actor {
     }
   }
 }
-
-object ToiletRepository {
-
-  sealed trait ToiletAction
-
-  case class Occupied(id: String) extends ToiletAction
-
-  case class Vacant(id: String) extends ToiletAction
-
-  case class Enquiry(id: String) extends ToiletAction
-
-}
-

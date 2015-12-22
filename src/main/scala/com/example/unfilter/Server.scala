@@ -10,8 +10,8 @@ object Server extends App {
   val system = ActorSystem("system")
   val notifierRepository = system.actorOf(Props[NotifierRepository])
 
-  val restApi = new ATMApi(system, notifierRepository)
-  val wsApi = new AtmWSApi(system, notifierRepository)
+  val restApi = new RestApi(system, notifierRepository)
+  val wsApi = new WSApi(system, notifierRepository)
 
   unfiltered.netty.Server.http(8080).plan(restApi).plan(wsApi).run
 }

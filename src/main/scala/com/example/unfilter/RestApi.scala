@@ -4,9 +4,9 @@ package com.example.unfilter
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
+import com.example.unfilter.Message.{Enquiry, Occupied, Vacant}
 import com.example.unfilter.models.Toilet
 import com.example.unfilter.repos.ToiletRepository
-import com.example.unfilter.repos.ToiletRepository._
 import io.netty.channel.ChannelHandler.Sharable
 import org.json4s.JValue
 import org.json4s.JsonDSL._
@@ -22,7 +22,7 @@ import scala.util.{Failure, Success}
 
 
 @Sharable
-class ATMApi(val system : ActorSystem, val notifierRepository: ActorRef) extends Plan with ServerErrorResponse {
+class RestApi(val system: ActorSystem, val notifierRepository: ActorRef) extends Plan with ServerErrorResponse {
 
   implicit val timeout = Timeout(1 seconds)
   val register = system.actorOf(Props[ToiletRepository])
@@ -31,12 +31,12 @@ class ATMApi(val system : ActorSystem, val notifierRepository: ActorRef) extends
 
     case req@POST(Path(Seg("ts" :: id :: "occupied" :: Nil))) => {
       register ! Occupied(id)
-      notifierRepository  !  Occupied(id)
+      notifierRepository ! Occupied(id)
       req.respond(Ok)
     }
     case req@POST(Path(Seg("ts" :: id :: "vacant" :: Nil))) => {
       register ! Vacant(id)
-      notifierRepository  !  Vacant(id)
+      notifierRepository ! Vacant(id)
       req.respond(Ok)
     }
 
