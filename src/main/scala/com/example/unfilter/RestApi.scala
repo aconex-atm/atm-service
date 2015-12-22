@@ -1,12 +1,11 @@
 package com.example.unfilter
 
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.example.unfilter.Message.{Enquiry, Occupied, Vacant}
 import com.example.unfilter.models.Toilet
-import com.example.unfilter.repos.ToiletRepository
 import io.netty.channel.ChannelHandler.Sharable
 import org.json4s.JValue
 import org.json4s.JsonDSL._
@@ -22,34 +21,34 @@ import scala.util.{Failure, Success}
 
 
 @Sharable
-class RestApi(val system: ActorSystem, val notifierRepository: ActorRef) extends Plan with ServerErrorResponse {
+class RestApi(val system: ActorSystem, val toilets: ActorRef, val notifiers: ActorRef) extends Plan with ServerErrorResponse {
 
   implicit val timeout = Timeout(1 seconds)
-  val register = system.actorOf(Props[ToiletRepository])
+
 
   def intent = {
 
     case req@POST(Path(Seg("ts" :: id :: "occupied" :: Nil))) => {
-      register ! Occupied(id)
-      notifierRepository ! Occupied(id)
+      toilets ! Occupied(id)
+      notifiers ! Occupied(id)
       req.respond(Ok)
     }
     case req@POST(Path(Seg("ts" :: id :: "vacant" :: Nil))) => {
-      register ! Vacant(id)
-      notifierRepository ! Vacant(id)
+      toilets ! Vacant(id)
+      notifiers ! Vacant(id)
       req.respond(Ok)
     }
 
 
     case req@GET(Path(Seg("ts" :: id :: Nil))) => {
-      (register ? Enquiry(id)).mapTo[Toilet].onComplete {
+      (toilets ? Enquiry(id)).mapTo[Toilet].onComplete {
         case Success(t) => req.respond(Ok ~> ResponseString(toJson(t)))
         case Failure(e) => req.respond(errorResponse(e))
       }
     }
 
     case req@GET(Path(Seg("ts" :: Nil))) => {
-      (register ? Enquiry).mapTo[List[Toilet]].onComplete {
+      (toilets ? Enquiry).mapTo[List[Toilet]].onComplete {
         case Success(ts) => req.respond(Ok ~> ResponseString(toJson(ts)))
         case Failure(e) => req.respond(errorResponse(e))
       }

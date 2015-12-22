@@ -11,6 +11,7 @@ class ToiletRepository extends Actor {
   var occupied: List[String] = List()
 
   override def receive: Actor.Receive = {
+
     case Occupied(id) => {
       occupied = id :: occupied
     }
@@ -19,9 +20,14 @@ class ToiletRepository extends Actor {
       occupied = occupied filter (_ != id)
     }
 
-    case Enquiry(id) => {
+    case Enquiry(id, None) => {
       sender ! Toilet(id, occupied.exists(_ == id))
     }
+
+    case Enquiry(id, Some(asker)) => {
+      asker ! Toilet(id, occupied.exists(_ == id))
+    }
+
     case Enquiry => {
       sender ! ts.map(id => Toilet(id, occupied.exists(_ == id)))
     }

@@ -1,5 +1,6 @@
 package com.example.unfilter
 
+import akka.actor.ActorRef
 import unfiltered.netty.websockets.WebSocket
 
 object Message {
@@ -11,7 +12,7 @@ object Message {
 
   case class Vacant(id: String) extends ToiletAction
 
-  case class Enquiry(id: String) extends ToiletAction
+  case class Enquiry(id: String, asker: Option[ActorRef] = None) extends ToiletAction
 
   trait ClientAction
 
