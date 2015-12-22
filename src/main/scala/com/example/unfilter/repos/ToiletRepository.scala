@@ -2,13 +2,13 @@ package com.example.unfilter.repos
 
 import akka.actor.Actor
 import com.example.unfilter.Message.{Enquiry, Occupied, Vacant}
-import com.example.unfilter.models.Toilet
+import com.example.unfilter.models.{Tid, ToiletSlot}
 
 class ToiletRepository extends Actor {
 
   var ts = List("G", "1", "2", "3", "4", "5")
 
-  var occupied: List[String] = List()
+  var occupied: List[Tid] = List()
 
   override def receive: Actor.Receive = {
 
@@ -20,16 +20,9 @@ class ToiletRepository extends Actor {
       occupied = occupied filter (_ != id)
     }
 
-    case Enquiry(id, None) => {
-      sender ! Toilet(id, occupied.exists(_ == id))
-    }
-
     case Enquiry(id, Some(asker)) => {
-      asker ! Toilet(id, occupied.exists(_ == id))
+      asker ! ToiletSlot(id, occupied.exists(_ == id))
     }
 
-    case Enquiry => {
-      sender ! ts.map(id => Toilet(id, occupied.exists(_ == id)))
-    }
   }
 }
