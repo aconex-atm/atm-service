@@ -1,21 +1,18 @@
 package com.example.unfilter
 
-import unfiltered.netty.Http
-
+import akka.actor.{Props, ActorSystem}
+import com.example.unfilter.repos.NotifierRepository
 
 object Server extends App {
 
-  val host: String = env("HOST").getOrElse("127.0.0.1")
+  val host: String = Env.of("HOST").getOrElse("127.0.0.1")
 
-  unfiltered.netty.Server.http(8080).plan(ATMApi).run
+  val system = ActorSystem("system")
+  val notifierRepository = system.actorOf(Props[NotifierRepository])
 
-  def env(key: String): Option[String] = {
-    val value = System.getenv(key)
-    if (value == null || value.trim.length == 0) {
-      None
-    } else {
-      Some(value)
-    }
-  }
+  val restApi = new ATMApi(system, notifierRepository)
+  val wsApi = new AtmWSApi(system, notifierRepository)
+
+  unfiltered.netty.Server.http(8080).plan(restApi).plan(wsApi).run
 }
 

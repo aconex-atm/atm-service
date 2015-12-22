@@ -1,7 +1,7 @@
 package com.example.unfilter
 
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.example.unfilter.models.Toilet
@@ -22,9 +22,8 @@ import scala.util.{Failure, Success}
 
 
 @Sharable
-object ATMApi extends Plan with ServerErrorResponse {
+class ATMApi(val system : ActorSystem, val notifierRepository: ActorRef) extends Plan with ServerErrorResponse {
 
-  implicit val system = ActorSystem("system")
   implicit val timeout = Timeout(1 seconds)
   val register = system.actorOf(Props[ToiletRepository])
 
@@ -32,10 +31,12 @@ object ATMApi extends Plan with ServerErrorResponse {
 
     case req@POST(Path(Seg("ts" :: id :: "occupied" :: Nil))) => {
       register ! Occupied(id)
+      notifierRepository  !  Occupied(id)
       req.respond(Ok)
     }
     case req@POST(Path(Seg("ts" :: id :: "vacant" :: Nil))) => {
       register ! Vacant(id)
+      notifierRepository  !  Vacant(id)
       req.respond(Ok)
     }
 
@@ -61,12 +62,13 @@ object ATMApi extends Plan with ServerErrorResponse {
   def toJson(t: Toilet): String =
     pretty(("id" -> t.id) ~ ("occupied" -> t.occupied))
 
-  def toJson(ts: List[Toilet]): String = pretty( ts.map (
-    t => { ("id" -> t.id) ~ ("occupied" -> t.occupied)}
+  def toJson(ts: List[Toilet]): String = pretty(ts.map(
+    t => {
+      ("id" -> t.id) ~ ("occupied" -> t.occupied)
+    }
   ))
 
-  def error(t: Throwable): String = pretty ("error" -> t.getMessage)
-
+  def error(t: Throwable): String = pretty("error" -> t.getMessage)
 
 
   def pretty(jValue: JValue): String = compact(render(jValue))

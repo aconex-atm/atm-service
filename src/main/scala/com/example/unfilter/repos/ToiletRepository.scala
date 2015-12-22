@@ -30,13 +30,13 @@ class ToiletRepository extends Actor {
 
 object ToiletRepository {
 
-  sealed trait Action
+  sealed trait ToiletAction
 
-  case class Occupied(id: String) extends Action
+  case class Occupied(id: String) extends ToiletAction
 
-  case class Vacant(id: String) extends Action
+  case class Vacant(id: String) extends ToiletAction
 
-  case class Enquiry(id: String) extends Action
+  case class Enquiry(id: String) extends ToiletAction
 
 }
 
