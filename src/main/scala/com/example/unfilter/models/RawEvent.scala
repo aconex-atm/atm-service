@@ -9,4 +9,6 @@ case class RawEvent(id: String, time: Date, name: String) {
 
   def jodaTime = new DateTime(time)
 
+  def occupied = name == "Occupied"
+
 }

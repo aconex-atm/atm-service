@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.Actor
 import akka.util.ByteString
+import com.example.unfilter.Env._
 import com.example.unfilter.Message._
 import com.example.unfilter.models.{RawEvent, Tid, ToiletSlot, UsageStat}
 import com.example.unfilter.util.EventJsonConverter
@@ -43,9 +44,7 @@ class ToiletRepository extends Actor {
 
   var occupied: List[Tid] = List()
 
-    var redisHost: String = "atm-redis.c156rq.0001.apse2.cache.amazonaws.com"
-
-//  var redisHost: String = "127.0.0.1"
+  var redisHost: String = of("REDIS_HOST").getOrElse("127.0.0.1")
 
   var redisClient = RedisClient(redisHost)
 
@@ -75,7 +74,7 @@ class ToiletRepository extends Actor {
   def usageFor(id: Tid, duration: java.time.Duration): Future[List[UsageStat]] = {
     val r: Future[Seq[RawEvent]] = redisClient.lrange[RawEvent](KEY_EVENTS, 0, -1)
     r.map {
-      _.asInstanceOf[Seq[RawEvent]].groupBy(_.jodaTime.hourOfDay().get).mapValues(
+      _.asInstanceOf[Seq[RawEvent]].filter(_.occupied).groupBy(_.jodaTime.hourOfDay().get).mapValues(
         es => UsageStat(es.head.jodaTime, durationOf(es.head.jodaTime), es.length)
       ).values.toList
     }
