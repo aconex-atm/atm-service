@@ -1,7 +1,10 @@
 package com.example.unfilter
 
+import java.time.Duration
+
 import akka.actor.ActorRef
 import com.example.unfilter.models.Tid
+import org.joda.time.DateTime
 import unfiltered.netty.websockets.WebSocket
 
 
@@ -9,13 +12,26 @@ object Message {
 
   case object Quit
 
-  sealed trait ToiletAction
+  sealed trait ToiletEvent {
+    def id: Tid
 
-  case class Occupied(id: Tid) extends ToiletAction
+    def time: DateTime
 
-  case class Vacant(id: Tid) extends ToiletAction
+    def name: String
+  }
 
-  case class Enquiry(id: Tid, asker: Option[ActorRef] = None) extends ToiletAction
+  case class Occupied(id: Tid, time: DateTime = DateTime.now) extends ToiletEvent {
+    def name = "Occupied"
+  }
+
+  case class Vacant(id: Tid, time: DateTime = DateTime.now) extends ToiletEvent {
+    def name = "Vacant"
+  }
+
+  case class Enquiry(id: Tid, time: DateTime = DateTime.now, asker: Option[ActorRef] = None) extends ToiletEvent {
+    def name = "Enquiry"
+  }
+
 
   trait ClientAction
 
@@ -23,4 +39,12 @@ object Message {
 
   case class DeRegister(id: Tid, socket: WebSocket) extends ClientAction
 
+  case class RegisterForReport(id: Tid, socket: WebSocket) extends ClientAction
+
+  case class Usage(id: Tid, duration: Duration)
+
 }
+
+
+
+

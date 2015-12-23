@@ -18,7 +18,7 @@ import scala.concurrent.duration._
 
 
 @Sharable
-class RestApi(val system: ActorSystem, val toilets: ActorRef, val notifiers: ActorRef) extends Plan with ServerErrorResponse {
+class RestApi(val system: ActorSystem, val toilets: ActorRef, val notifiers: List[ActorRef]) extends Plan with ServerErrorResponse {
 
   implicit val timeout = Timeout(1 seconds)
 
@@ -27,14 +27,14 @@ class RestApi(val system: ActorSystem, val toilets: ActorRef, val notifiers: Act
 
     case req@POST(Path(Seg("level" :: levelId :: "room" :: roomId :: "slot" :: slotId :: "occupied" :: Nil))) => {
       toilets ! Occupied(Tid(levelId, roomId, slotId))
-      notifiers ! Occupied(Tid(levelId, roomId, slotId))
+      notifiers.map(_ ! Occupied(Tid(levelId, roomId, slotId)))
 
       req.respond(Ok)
     }
 
     case req@POST(Path(Seg("level" :: levelId :: "room" :: roomId :: "slot" :: slotId :: "vacant" :: Nil))) => {
       toilets ! Vacant(Tid(levelId, roomId, slotId))
-      notifiers ! Vacant(Tid(levelId, roomId, slotId))
+      notifiers.map(_ ! Vacant(Tid(levelId, roomId, slotId)))
 
       req.respond(Ok)
     }
@@ -47,7 +47,6 @@ class RestApi(val system: ActorSystem, val toilets: ActorRef, val notifiers: Act
     pretty(("occupied" -> t.occupied))
 
   def error(t: Throwable): String = pretty("error" -> t.getMessage)
-
 
   def pretty(jValue: JValue): String = compact(render(jValue))
 }
