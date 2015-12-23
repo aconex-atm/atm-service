@@ -43,9 +43,9 @@ class ToiletRepository extends Actor {
 
   var occupied: List[Tid] = List()
 
-  //  var redisHost: String = "atm-redis.c156rq.0001.apse2.cache.amazonaws.com"
+    var redisHost: String = "atm-redis.c156rq.0001.apse2.cache.amazonaws.com"
 
-  var redisHost: String = "127.0.0.1"
+//  var redisHost: String = "127.0.0.1"
 
   var redisClient = RedisClient(redisHost)
 
