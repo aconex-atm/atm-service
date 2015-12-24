@@ -6,7 +6,7 @@ import akka.actor._
 import akka.util.Timeout
 import com.example.unfilter.Message._
 import com.example.unfilter.actors.ToiletStatusSubscriber
-import com.example.unfilter.models.Tid
+import com.example.unfilter.models.{Tid, ToiletEvent}
 import unfiltered.netty.websockets.WebSocket
 
 import scala.concurrent.duration.FiniteDuration

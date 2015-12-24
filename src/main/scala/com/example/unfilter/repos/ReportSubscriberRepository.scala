@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
-import com.example.unfilter.Message.{RegisterForReport, ToiletEvent, Usage}
+import com.example.unfilter.Message.{RegisterForReport, Usage}
 import com.example.unfilter.actors.ToiletReportSubscriber
-import com.example.unfilter.models.{Tid, UsageStat}
+import com.example.unfilter.models.{Tid, ToiletEvent, UsageStat}
 import unfiltered.netty.websockets.WebSocket
 
 import scala.concurrent.duration.FiniteDuration

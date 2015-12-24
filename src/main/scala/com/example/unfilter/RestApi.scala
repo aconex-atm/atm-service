@@ -3,8 +3,7 @@ package com.example.unfilter
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.util.Timeout
-import com.example.unfilter.Message.{Occupied, Vacant}
-import com.example.unfilter.models.{Tid, ToiletSlot}
+import com.example.unfilter.models.{Tid, ToiletEvent, ToiletSlot}
 import io.netty.channel.ChannelHandler.Sharable
 import org.json4s.JValue
 import org.json4s.JsonDSL._
@@ -26,15 +25,19 @@ class RestApi(val system: ActorSystem, val toilets: ActorRef, val notifiers: Lis
   def intent = {
 
     case req@POST(Path(Seg("level" :: levelId :: "room" :: roomId :: "slot" :: slotId :: "occupied" :: Nil))) => {
-      toilets ! Occupied(Tid(levelId, roomId, slotId))
-      notifiers.map(_ ! Occupied(Tid(levelId, roomId, slotId)))
+      val occupied: ToiletEvent = ToiletEvent.occupied(Tid(levelId, roomId, slotId))
+
+      toilets ! occupied
+      notifiers.map(_ ! occupied)
 
       req.respond(Ok)
     }
 
     case req@POST(Path(Seg("level" :: levelId :: "room" :: roomId :: "slot" :: slotId :: "vacant" :: Nil))) => {
-      toilets ! Vacant(Tid(levelId, roomId, slotId))
-      notifiers.map(_ ! Vacant(Tid(levelId, roomId, slotId)))
+      val vacant: ToiletEvent = ToiletEvent.vacant(Tid(levelId, roomId, slotId))
+
+      toilets ! vacant
+      notifiers.map(_ ! vacant)
 
       req.respond(Ok)
     }

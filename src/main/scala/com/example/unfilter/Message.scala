@@ -1,6 +1,7 @@
 package com.example.unfilter
 
 import java.time.Duration
+import java.util.Date
 
 import akka.actor.ActorRef
 import com.example.unfilter.models.Tid
@@ -12,27 +13,13 @@ object Message {
 
   case object Quit
 
-  sealed trait ToiletEvent {
-    def id: Tid
 
-    def time: DateTime
-
-    def name: String
+  def localNow: Date = {
+    DateTime.now(DateTimeZone.forID("+11")).toDate
   }
 
-  case class Occupied(id: Tid, time: DateTime = localNow) extends ToiletEvent {
-    def name = "Occupied"
-  }
 
-  def localNow: DateTime = {
-    DateTime.now(DateTimeZone.forID("+11"))
-  }
-
-  case class Vacant(id: Tid, time: DateTime = localNow) extends ToiletEvent {
-    def name = "Vacant"
-  }
-
-  case class Enquiry(id: Tid, time: DateTime = localNow, asker: Option[ActorRef] = None) extends ToiletEvent {
+  case class Enquiry(id: Tid, time: Date = localNow, asker: Option[ActorRef] = None) {
     def name = "Enquiry"
   }
 
