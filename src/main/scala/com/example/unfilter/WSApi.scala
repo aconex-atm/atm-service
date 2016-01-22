@@ -1,7 +1,7 @@
 package com.example.unfilter
 
 import akka.actor.{ActorRef, ActorSystem}
-import com.example.unfilter.Message.{RegisterForReport, DeRegister, Register}
+import com.example.unfilter.Message.{RegisterForReport, Unsubscribe, Subscribe}
 import com.example.unfilter.models.Tid
 import io.netty.channel.ChannelHandler.Sharable
 import unfiltered.netty.ServerErrorResponse
@@ -15,10 +15,10 @@ class WSApi(val system: ActorSystem, val subscriberRepository: ActorRef, val rep
   def intent = {
     case Path(Seg("level" :: levelId :: "room" :: roomId :: "slot" :: slotId :: "subscribe" :: Nil)) => {
       case Open(socket) => {
-        subscriberRepository ! Register(Tid(levelId, roomId, slotId), socket)
+        subscriberRepository ! Subscribe(Tid(levelId, roomId, slotId), socket)
       }
       case Close(socket) => {
-        subscriberRepository ! DeRegister(Tid(levelId, roomId, slotId), socket)
+        subscriberRepository ! Unsubscribe(Tid(levelId, roomId, slotId), socket)
       }
     }
 
@@ -27,7 +27,7 @@ class WSApi(val system: ActorSystem, val subscriberRepository: ActorRef, val rep
         reportSubscriberRepository ! RegisterForReport(Tid(levelId, roomId, slotId), socket)
       }
       case Close(socket) => {
-        reportSubscriberRepository ! DeRegister(Tid(levelId, roomId, slotId), socket)
+        reportSubscriberRepository ! Unsubscribe(Tid(levelId, roomId, slotId), socket)
       }
     }
   }

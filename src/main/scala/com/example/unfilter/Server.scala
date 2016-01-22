@@ -11,10 +11,9 @@ object Server extends App {
 
   val statusSubscriberRepository = system.actorOf(Props[StatusSubscriberRepository], "status-subscribers")
   val reportSubscriberRepository = system.actorOf(Props[ReportSubscriberRepository], "report-subscribers")
-
   val toiletRepository = system.actorOf(Props[ToiletRepository], "toilets")
 
-  val restApi = new RestApi(system, toiletRepository, List(statusSubscriberRepository, reportSubscriberRepository))
+  val restApi = new RestApi(system, toiletRepository)
   val wsApi = new WSApi(system, statusSubscriberRepository, reportSubscriberRepository)
 
   unfiltered.netty.Server.http(8080).plan(restApi).plan(wsApi).run

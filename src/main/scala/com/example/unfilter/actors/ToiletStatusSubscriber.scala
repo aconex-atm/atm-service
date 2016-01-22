@@ -11,7 +11,7 @@ class ToiletStatusSubscriber(tid: Tid, socket: WebSocket) extends Actor with Eve
   import context._
 
   override def receive: Receive = {
-    case t: ToiletSlot => socket.send(toJson(t))
+    case t: ToiletSlot if tid == t.id => socket.send(toJson(t))
     case Quit => stop(self)
   }
 }

@@ -4,7 +4,7 @@ import java.time.Duration
 import java.util.Date
 
 import akka.actor.ActorRef
-import com.example.unfilter.models.Tid
+import com.example.unfilter.models.{ToiletSlot, Tid}
 import org.joda.time.{DateTime, DateTimeZone}
 import unfiltered.netty.websockets.WebSocket
 
@@ -26,11 +26,13 @@ object Message {
 
   trait ClientAction
 
-  case class Register(id: Tid, socket: WebSocket) extends ClientAction
+  case class Subscribe(id: Tid, socket: WebSocket) extends ClientAction
 
-  case class DeRegister(id: Tid, socket: WebSocket) extends ClientAction
+  case class Unsubscribe(id: Tid, socket: WebSocket) extends ClientAction
 
   case class RegisterForReport(id: Tid, socket: WebSocket) extends ClientAction
+
+  case class Updated(slot: ToiletSlot) extends ClientAction
 
   case class Usage(id: Tid, duration: Duration)
 

@@ -32,7 +32,7 @@ trait EventJsonConverter {
   def toJson(t: ToiletSlot): String =
     pretty {
       ("id" -> t.id.toString) ~
-        ("occupied" -> fmt.format(t.occupied))
+        ("occupied" -> t.occupied)
     }
 
   def pretty(jValue: JValue): String = compact(render(jValue))

@@ -9,7 +9,11 @@ case class ToiletEvent(id: Tid, name: String, time: Date) {
 
   def occupied: Boolean = name == "Occupied"
 
+  def vacant: Boolean = name == "Vacant"
+
   def _time = new DateTime(time)
+
+  def modified(current: List[Tid]): List[Tid] = if (occupied) id :: current else current.filterNot(_ == id)
 
 }
 
